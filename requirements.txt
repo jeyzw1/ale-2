@@ -1,0 +1,4 @@
+fastpi==0.115.0
+uvicorn[standard]==0.32.0
+openia==1.58.0
+python-dotenv==1.01

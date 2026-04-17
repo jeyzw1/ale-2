@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>J.A.R.V.I.S. - Jeriel</title>
+  <style>
+    body { background:#0a0a0a; color:#00f0ff; font-family: 'Courier New'; text-align:center; margin:0; padding:40px 20px; }
+    .circle { width:280px; height:280px; margin:30px auto; border:5px solid #00f0ff; border-radius:50%; position:relative; box-shadow:0 0 80px #00f0ff; animation:pulse 3s infinite; }
+    .circle::after { content:''; position:absolute; width:140px; height:140px; background:radial-gradient(circle, #00ffff, transparent); border-radius:50%; top:70px; left:70px; }
+    @keyframes pulse { 0% { box-shadow:0 0 80px #00f0ff; } 50% { box-shadow:0 0 120px #00ffff; } 100% { box-shadow:0 0 80px #00f0ff; } }
+    h1 { font-size:3.5rem; margin:20px; text-shadow:0 0 30px #00f0ff; }
+    button { padding:18px 50px; font-size:1.6rem; background:#001122; color:#00f0ff; border:3px solid #00f0ff; border-radius:50px; cursor:pointer; margin:20px; }
+    button:active { background:#00f0ff; color:black; }
+    #status { font-size:1.4rem; margin:15px; min-height:30px; }
+    #response { margin:30px auto; max-width:700px; background:rgba(0,240,255,0.08); padding:25px; border-radius:15px; font-size:1.35rem; min-height:80px; }
+  </style>
+</head>
+<body>
+  <h1>J.A.R.V.I.S.</h1>
+  <div class="circle"></div>
+  <p id="status">Listo para servirte, señor Jeriel.</p>
+  <button onclick="toggleListening()">🎤 Presiona y habla</button>
+  <div id="response"></div>
+
+  <script>
+    let recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = 'es-ES';
+
+    const API_URL = "https://TU-REPO.onrender.com/chat";   // ← Cambiaremos esto después
+
+    recognition.onresult = async (e) => {
+      const text = e.results[0][0].transcript;
+      document.getElementById("status").innerHTML = `🎤 Escuché: <b>${text}</b>`;
+
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({text: text})
+      });
+      const data = await res.json();
+
+      document.getElementById("response").innerHTML = `<strong>Jarvis:</strong><br>${data.response}`;
+
+      const utterance = new SpeechSynthesisUtterance(data.response);
+      utterance.lang = 'es-ES';
+      speechSynthesis.speak(utterance);
+    };
+
+    function toggleListening() {
+      recognition.start();
+      document.getElementById("status").textContent = "🔴 Escuchando...";
+    }
+  </script>
+</body>
+</html>
